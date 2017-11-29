@@ -15,6 +15,7 @@ contract IcoManagement {
     // uint256 public icoEndTime = 1517270400; 
     uint256 public min_inv = 1E17;
     uint256 public minCap = 3000E18;
+    Uint256 public funded;
     // uint256 public tokenHolders;
     
     bool public icoPhase = true;
@@ -56,6 +57,7 @@ contract IcoManagement {
         require (purchase >= min_inv);
         uint256 change = purchase.mod(fract_price);
         uint256 clean_purchase = purchase.sub(change);
+	funded = funded.add(clean_purchase);
         uint256 token_amount = clean_purchase.div(fract_price);
         require (_to.send(change));
         token.mint(_to, token_amount);
@@ -84,6 +86,7 @@ contract IcoManagement {
     
     function withdraw_if_failed() public {
         require(now > icoEndTime);
+	require(funded<minCap);
         require(!icoPhase);
         require (contributors[msg.sender] != 0);
         contributors[msg.sender] = 0;
